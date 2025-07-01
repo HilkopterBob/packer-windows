@@ -1,6 +1,6 @@
 # Windows / Qemu(KVM/Libvirt) Packer Templates
 
-Builds Windows 10 (22h2), Windows 11 (22h2) Server 2022 and Server 2019 windows images.
+Builds Windows 10 (22h2), Windows 11 (22h2) Server 2022, Server 2019 and Server 2016 windows images.
 These are suitable for consumption for QEMU and libvirt.
 
 ## Intent
@@ -15,6 +15,7 @@ Images have the following:
   * Chocolatey
   * QEMU guest additions
   * VirtIO drivers
+  * GitLab Runner (downloaded to `C:\gitlab-runner\gitlab-runner.exe`)
 
 ## Prerequisites
 
@@ -46,6 +47,12 @@ packer build autounattend=./Autounattend.xml win10_22h2.pkr.hcl
 
 `packer build win11_22h2.pkr.hcl`
 
+### Windows Server 2016
+
+```bash
+packer build win2016.pkr.hcl
+```
+
 ### Windows Server 2019
 
 ```bash
@@ -61,6 +68,13 @@ packer build win2022.pkr.hcl
 # Build core edition instead
 packer build -var=autounattend=answer_files/2022-core/Autounattend.xml win2022.pkr.hcl
 ```
+
+## GitLab CI/CD
+
+This repository now includes a GitLab CI pipeline that validates all templates
+and builds every image. Each build job runs in parallel and compresses the
+resulting disk image. The compressed images are exposed as job artifacts for
+easy download.
 
 ## Building faster
 
