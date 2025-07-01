@@ -1,0 +1,73 @@
+image: hashicorp/packer:latest
+
+stages:
+  - validate
+  - build
+
+validate:
+  stage: validate
+  script:
+    # install plugins and validate every template
+    - packer init win10_22h2.pkr.hcl
+    - packer validate win10_22h2.pkr.hcl
+    - packer validate win11_23h2.pkr.hcl
+    - packer validate win2016.pkr.hcl
+    - packer validate win2019.pkr.hcl
+    - packer validate win2022.pkr.hcl
+
+.build_template:
+  stage: build
+  script:
+    - packer init "$TEMPLATE"
+    - packer build $BUILD_OPTS "$TEMPLATE"
+    - gzip "$OUTPUT_FILE"
+  artifacts:
+    paths:
+      - "$OUTPUT_FILE.gz"
+    expire_in: 1 week
+  needs:
+    - validate
+
+build_win10:
+  extends: .build_template
+  variables:
+    TEMPLATE: win10_22h2.pkr.hcl
+    OUTPUT_FILE: output-windows_10/packer-win10_22h2
+
+build_win11:
+  extends: .build_template
+  variables:
+    TEMPLATE: win11_23h2.pkr.hcl
+    OUTPUT_FILE: output-windows_11/packer-win11_23h2
+
+build_win2016:
+  extends: .build_template
+  variables:
+    TEMPLATE: win2016.pkr.hcl
+    OUTPUT_FILE: output-windows_2016/packer-win2016
+
+build_win2019:
+  extends: .build_template
+  variables:
+    TEMPLATE: win2019.pkr.hcl
+    OUTPUT_FILE: output-windows_2019/packer-win2019
+
+build_win2022:
+  extends: .build_template
+  variables:
+    TEMPLATE: win2022.pkr.hcl
+    OUTPUT_FILE: output-windows_2022/packer-win2022
+
+build_win2019_core:
+  extends: .build_template
+  variables:
+    TEMPLATE: win2019.pkr.hcl
+    OUTPUT_FILE: output-windows_2019_core/packer-win2019
+    BUILD_OPTS: "-var=vm_name=windows_2019_core -var=autounattend=answer_files/2019-core/Autounattend.xml"
+
+build_win2022_core:
+  extends: .build_template
+  variables:
+    TEMPLATE: win2022.pkr.hcl
+    OUTPUT_FILE: output-windows_2022_core/packer-win2022
+    BUILD_OPTS: "-var=vm_name=windows_2022_core -var=autounattend=answer_files/2022-core/Autounattend.xml"

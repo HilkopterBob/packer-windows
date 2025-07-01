@@ -72,7 +72,7 @@ ifeq ($(origin .RECIPEPREFIX), undefined)
 endif
 .RECIPEPREFIX = >
 
-all: win10 win11 win2019 win2022 win2019_core win2022_core
+all: win10 win11 win2016 win2019 win2022 win2019_core win2022_core
 .PHONY: all
 
 clean:
@@ -83,6 +83,8 @@ win10: output-windows_10/packer-win10_22h2
 .PHONY: win10
 win11: output-windows_11/packer-win11_23h2
 .PHONY: win11
+win2016: output-windows_2016/packer-win2016
+.PHONY: win2016
 win2019: output-windows_2019/packer-win2019
 .PHONY: win2019
 win2022: output-windows_2022/packer-win2022
@@ -96,6 +98,8 @@ output-windows_10/packer-win10_22h2:
 >packer build -var=headless=$(HEADLESS) win10_22h2.pkr.hcl
 output-windows_11/packer-win11_23h2:
 >packer build -var=headless=$(HEADLESS) win11_23h2.pkr.hcl
+output-windows_2016/packer-win2016:
+>packer build -var=headless=$(HEADLESS) win2016.pkr.hcl
 output-windows_2019/packer-win2019:
 >packer build -var=headless=$(HEADLESS) win2019.pkr.hcl
 output-windows_2022/packer-win2022:
@@ -117,6 +121,9 @@ launch_win10: win10
 launch_win11: win11
 >@$(call launch_qemu,"output-windows_11/packer-win11_23h2","/tmp/win11")
 .PHONY: launch_win11
+launch_win2016: win2016
+>@$(call launch_qemu,"output-windows_2016/packer-win2016","/tmp/win2016")
+.PHONY: launch_win2016
 launch_win2019: win2019
 >@$(call launch_qemu,"output-windows_2019/packer-win2019","/tmp/win2019")
 .PHONY: launch_win2019
@@ -139,6 +146,8 @@ test_win10:
 >@$(call test_ga,"/tmp/win10.sock", "Microsoft Windows 10)
 test_win11:
 >@$(call test_ga,"/tmp/win11.sock", "Microsoft Windows 11")
+test_win2016:
+>@$(call test_ga,"/tmp/win2016.sock","Microsoft Windows Server 2016")
 test_win2019:
 >@$(call test_ga,"/tmp/win2019.sock","Microsoft Windows Server 2019")
 test_win2022:
